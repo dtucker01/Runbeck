@@ -39,6 +39,7 @@ namespace Runbeck.Windows
             InitializeComponent();
         }
 
+
         /// <summary>
         /// Process the file selected by user. 
         /// </summary>
@@ -58,7 +59,7 @@ namespace Runbeck.Windows
                 {
                     fileTypeSelected = "\t";
                 }
-
+                //ClearFiles(directoryPath);
                 ProcessDataFile(openFileDialog.FileName, fileTypeSelected, numericUpDownFieldToDisplay.Value, directoryPath);
             }
         }
@@ -78,12 +79,12 @@ namespace Runbeck.Windows
                 //Only allow "csv" or "tsv" files to be selected per requirements. 
                 var fileExtension = radioButtonCSV.Checked ? "csv files (*.csv)|*.csv" : "tsv files (*.txt)|*.txt";
                 openFileDialog.Filter = fileExtension;
-                
+
                 if (openFileDialog.ShowDialog() == DialogResult.OK)
                 {
 
                     FileInfo file = new FileInfo(openFileDialog.FileName);
-                    
+
                     //Get record count in text file
                     var recordCount = GetRecordCount(file);
 
@@ -94,6 +95,12 @@ namespace Runbeck.Windows
                     {
                         numericUpDownFieldToDisplay.Minimum = 1;
                         numericUpDownFieldToDisplay.Maximum = recordCount;
+                    }
+                    else
+                    {
+                        numericUpDownFieldToDisplay.Minimum = 0;
+                        numericUpDownFieldToDisplay.Maximum = 0;
+                        ShowDialog("No Data In File!", Color.FromArgb(255, 187, 51));
                     }
                 }
                 else
@@ -226,6 +233,13 @@ namespace Runbeck.Windows
             }
         }
 
+        private void ClearFiles(string saveProcessDataFileLocation)
+        {
+            File.WriteAllText(saveProcessDataFileLocation + "\\" + _correctRecordFileName, String.Empty);
+            File.WriteAllText(saveProcessDataFileLocation + "\\" + _badRecordFileName, String.Empty);
+        }
+
+
         /// <summary>
         /// Gets the record count. The count will be what we use to set the maximum value for the number of fields to display.
         /// </summary>
@@ -239,11 +253,11 @@ namespace Runbeck.Windows
         /// </summary>
         private void EnableDisableProcessButton()
         {
+            btnProcessFile.Enabled = false;
             if (openFileDialog.FileName != string.Empty && numericUpDownFieldToDisplay.Minimum > 0)
             {
                 btnProcessFile.Enabled = true;
             }
-            btnProcessFile.Enabled = true;
         }
 
         /// <summary>
